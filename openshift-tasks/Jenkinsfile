@@ -18,6 +18,8 @@ podTemplate(
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
     def mvnCmd = "mvn -s ../nexus_settings.xml"
+    def nexusRepo = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def sonarqube = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
 
     // Checkout Source Code.
     stage('Checkout Source') {
@@ -64,7 +66,7 @@ podTemplate(
           echo "Running Code Analysis"
 
           // Execute Sonarqube Tests
-          sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
+          sh "${mvnCmd} sonar:sonar -Dsonar.host.url=${sonarqube}/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
         }
 
       }, 
@@ -74,16 +76,30 @@ podTemplate(
       stage('Publish to Nexus') {
         echo "Publish to Nexus"
 
-        // TBD: Publish to Nexus
-        sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com/repository/releases"
+        // Publish to Nexus
+        sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::${nexusRepo}/repository/releases"
 
       }
 
       // Build the OpenShift Image in OpenShift and tag it.
       stage('Build and Tag OpenShift Image') {
-        echo "Building OpenShift container image tasks:${devTag}"
+        // Build Image, tag Image
+        steps {
+            echo "Building OpenShift container image tasks:${devTag}"
 
-        // TBD: Build Image, tag Image
+            // Start Binary Build in OpenShift using the file we just published
+            // The filename is openshift-tasks.war in the 'target' directory of your current
+            // Jenkins workspace
+            script {
+              openshift.withCluster() {
+                openshift.withProject("${devProject}") {
+                
+                  openshift.selector("bc", "tasks").startBuild("--from-file=${nexusRepo}/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war", "--wait=true")
+                   openshift.tag("tasks:latest", "tasks:${devTag}")
+                }
+            }
+          }
+        }
       }
 
       // Deploy the built image to the Development Environment.

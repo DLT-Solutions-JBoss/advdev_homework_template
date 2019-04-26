@@ -46,9 +46,10 @@ podTemplate(
         sh "${mvnCmd} clean package -DskipTests=true"
       }
 
-      // TBD: The next two stages should run in parallel
+      // The next two stages should run in parallel
 
-      parallel (
+      parallel {
+
         // Using Maven run the unit tests
         stage('Unit Tests') {
           steps {
@@ -69,7 +70,7 @@ podTemplate(
           // TBD: Execute Sonarqube Tests
         }
 
-      )
+      } //End Parallel steps
 
       // Publish the built war file to Nexus
       stage('Publish to Nexus') {

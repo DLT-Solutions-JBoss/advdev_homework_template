@@ -147,7 +147,7 @@ podTemplate(
               --src-creds openshift:\$(oc whoami -t) \
               --dest-creds admin:redhat  \
               docker://docker-registry.default.svc:5000/${devProject}/tasks:${devTag} \
-              docker://${nexusRegSvc}/tasks:${devTag}"
+              docker://${nexusRegSvc}/tasks:${prodTag}"
 
           // Tag the built image with the production tag.
           openshift.withCluster() {
@@ -183,7 +183,7 @@ podTemplate(
               // Update the Image on the Production Deployment Config
               def dc = openshift.selector("dc/${destApp}").object()
 
-              dc.spec.template.spec.containers[0].image="${nexusRegSvc}/tasks:${prodTag}"
+              dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               openshift.apply(dc)
 
               // Update Config Map in change config files changed in the source
@@ -212,7 +212,15 @@ podTemplate(
 
       stage('Switch over to new Version') {
         echo "Switching Production application to ${destApp}."
-        // TBD: Execute switch
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${prodProject}") {
+              def route = openshift.selector("route/tasks").object()
+              route.spec.to.name="${destApp}"
+              openshift.apply(route)
+            }
+          }
+        }
       }
     }
   }

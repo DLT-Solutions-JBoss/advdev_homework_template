@@ -17,9 +17,14 @@ podTemplate(
   node('skopeo-pod') {
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
-    def mvnCmd = "mvn -s ../nexus_settings.xml"
-    def nexusRepo = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
-    def sonarqube = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def mvnCmd       = "mvn -s ../nexus_settings.xml"
+    def nexusRepo    = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def nexusRegSvc  = "https://nexus-registry.gpte-hw-cicd.svc.cluster.local:5000"
+    def nexusRegPub  = "https://nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def sonarqube    = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def sonarqubeSvc = "sonarqube.gpte-hw-cicd.svc.cluster.local:9000"
+    def devProject  = "${GUID}" +"-tasks-dev"
+    def prodProject = "${GUID}" +"-tasks-prod"
 
     // Checkout Source Code.
     stage('Checkout Source') {

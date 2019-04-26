@@ -84,19 +84,15 @@ podTemplate(
       // Build the OpenShift Image in OpenShift and tag it.
       stage('Build and Tag OpenShift Image') {
         // Build Image, tag Image
-        steps {
-            echo "Building OpenShift container image tasks:${devTag}"
+        echo "Building OpenShift container image tasks:${devTag}"
 
-            // Start Binary Build in OpenShift using the file we just published
-            // The filename is openshift-tasks.war in the 'target' directory of your current
-            // Jenkins workspace
-            script {
-              openshift.withCluster() {
-                openshift.withProject("${devProject}") {
+        // Start Binary Build in OpenShift using the file we just published
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${devProject}") {
                 
-                  openshift.selector("bc", "tasks").startBuild("--from-file=${nexusRepo}/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war", "--wait=true")
-                   openshift.tag("tasks:latest", "tasks:${devTag}")
-                }
+              openshift.selector("bc", "tasks").startBuild("--from-file=${nexusRepo}/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war", "--wait=true")
+              openshift.tag("tasks:latest", "tasks:${devTag}")
             }
           }
         }

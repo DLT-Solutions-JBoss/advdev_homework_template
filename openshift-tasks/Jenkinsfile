@@ -19,8 +19,8 @@ podTemplate(
     // settings for our Nexus installation
     def mvnCmd       = "mvn -s ../nexus_settings.xml"
     def nexusRepo    = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
-    def nexusRegSvc  = "https://nexus-registry.gpte-hw-cicd.svc.cluster.local:5000"
-    def nexusRegPub  = "https://nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+    def nexusRegSvc  = "nexus-registry.gpte-hw-cicd.svc.cluster.local:5000"
+    def nexusRegPub  = "nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
     def sonarqube    = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
     def sonarqubeSvc = "sonarqube.gpte-hw-cicd.svc.cluster.local:9000"
     def devProject  = "${GUID}" +"-tasks-dev"
@@ -139,11 +139,19 @@ podTemplate(
 
       // Copy Image to Nexus container registry
       stage('Copy Image to Nexus container registry') {
-        echo "Copy image to Nexus container registry"
 
-        // TBD: Copy image to Nexus container registry
+        // Copy image to Nexus container registry
+        echo "Copy image to Nexus Docker Registry"
+        script {
+        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) docker://docker-registry-default.apps.na311.openshift.opentlc.com/${devProject}/tasks:${devTag} docker://${nexusRegPub}/tasks:${prodTag}"
 
-        // TBD: Tag the built image with the production tag.
+        // Tag the built image with the production tag.
+        openshift.withCluster() {
+          openshift.withProject("${prodProject}") {
+            openshift.tag("${devProject}/tasks:${devTag}", "${devProject}/tasks:${prodTag}")
+            }
+          }
+        }
       }
 
       // Blue/Green Deployment into Production

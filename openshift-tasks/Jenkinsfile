@@ -146,9 +146,9 @@ podTemplate(
              def devApp = ""
              openshift.withCluster() {
                 openshift.withProject("${devProject}") {
-                  devApp = openshift.selector("route", "tasks").object().spec.to.name
+                  devApp = openshift.selector("route", "tasks").object().spec.host
                   
-                  echo "Executing tests on Dev Project: "${devApp}
+                  echo "Executing tests on Dev Project App at: ${devApp}"
 
                   // Create a new task called "integration_test_${GUID}"
                   echo "Creating task"

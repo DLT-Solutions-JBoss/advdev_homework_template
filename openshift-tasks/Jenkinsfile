@@ -220,8 +220,8 @@ podTemplate(
               }
               
               //Check for Nexus Reg Secret, if it doesn't exist, create it
-              if (! openshift.selector("secret/${nexus-registry-secret-${GUID}}").exists()) {
-                 echo "No Nexus Registry Secret - Creating ${nexus-registry-secret-${GUID}} now!"
+              if (! openshift.selector("secret/nexus-registry-secret-${GUID}").exists()) {
+                 echo "No Nexus Registry Secret - Creating nexus-registry-secret-${GUID} now!"
                 
               }
               

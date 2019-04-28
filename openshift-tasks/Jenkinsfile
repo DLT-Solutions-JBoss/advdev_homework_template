@@ -23,8 +23,9 @@ podTemplate(
     def nexusRegPub  = "nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
     def sonarqube    = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
     def sonarqubeSvc = "sonarqube.gpte-hw-cicd.svc.cluster.local:9000"
-    def devProject  = "${GUID}" +"-tasks-dev"
-    def prodProject = "${GUID}" +"-tasks-prod"
+    def appBaseUrl   = "apps.na311.openshift.opentlc.com"
+    def devProject   = "${GUID}" +"-tasks-dev"
+    def prodProject  = "${GUID}" +"-tasks-prod"
 
     // Checkout Source Code.
     stage('Checkout Source') {
@@ -145,20 +146,20 @@ podTemplate(
 
              // Create a new task called "integration_test_1"
              echo "Creating task"
-             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks.${GUID}-tasks-dev.svc.cluster.local:8080/ws/tasks/integration_test_1").trim()
+             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://${devProject}.${appBaseUrl}/ws/tasks/integration_test_${GUID}").trim()
              echo "Status: " + status
              if (status != "201") {
                error 'Integration Create Test Failed!'
              }
 
              echo "Retrieving tasks"
-             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://tasks.${GUID}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
+             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://${devProject}.${appBaseUrl}/ws/tasks/${GUID}").trim()
              if (status != "200") {
                 error 'Integration Get Test Failed!'
              }
 
              echo "Deleting tasks"
-             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://tasks.${GUID}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
+             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://${devProject}.${appBaseUrl}/ws/tasks/${GUID}").trim()
              if (status != "204") {
                 error 'Integration Create Test Failed!'
              }

@@ -147,19 +147,21 @@ podTemplate(
              // Create a new task called "integration_test_1"
              echo "Creating task"
              status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks-${devProject}.${appBaseUrl}/ws/tasks/integration_test_${GUID}").trim()
-             echo "Status: " + status
+             echo "Create Status: " + status
              if (status != "201") {
                error 'Integration Create Test Failed!'
              }
 
              echo "Retrieving tasks"
-             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://tasks-${devProject}.${appBaseUrl}/ws/tasks/${GUID}").trim()
+             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://tasks-${devProject}.${appBaseUrl}/ws/tasks/1").trim()
+             echo "Retrieve Status: " + status
              if (status != "200") {
                 error 'Integration Get Test Failed!'
              }
 
              echo "Deleting tasks"
-             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://tasks-${devProject}.${appBaseUrl}/ws/tasks/${GUID}").trim()
+             status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://tasks-${devProject}.${appBaseUrl}/ws/tasks/1").trim()
+             echo "Delete Status: " + status
              if (status != "204") {
                 error 'Integration Create Test Failed!'
              }

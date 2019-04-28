@@ -116,6 +116,7 @@ podTemplate(
             openshift.withCluster() {
             openshift.withProject("${devProject}") {
             openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
+            openshift.set("env", "dc/tasks", "VERSION=${version}")
 
             openshift.selector('configmap', 'tasks-config').delete()
             def configmap = openshift.create('configmap', 'tasks-config', '--from-file=./configuration/application-users.properties', '--from-file=./configuration/application-roles.properties' )
@@ -200,6 +201,7 @@ podTemplate(
       // Blue/Green Deployment into Production
       // -------------------------------------
       def destApp   = "tasks-green"
+      def color     = "green"
       def activeApp = ""
 
       stage('Blue/Green Production Deployment') {
@@ -214,6 +216,7 @@ podTemplate(
               activeApp = openshift.selector("route", "tasks").object().spec.to.name
               if (activeApp == "tasks-green") {
                 destApp = "tasks-blue"
+                color   = "blue"
               }
               
               echo "Active Application:      " + activeApp
@@ -223,6 +226,10 @@ podTemplate(
               def dc = openshift.selector("dc/${destApp}").object()
 
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
+              //Set VERSION environment variable
+              openshift.set("env", "dc/tasks", "VERSION=${version} (tsks-${color})")
+    //          dc.spec.template.spec.containers[0].env[0].value="${version} (tsks-${color})"
+              
               openshift.apply(dc)
 
               // Update Config Map in change config files changed in the source

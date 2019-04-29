@@ -46,6 +46,10 @@ items:
         env:
         - name: GUID
           value: "$GUID"
+        - name: "REPO"
+          value: ${REPO}
+        - name: "CLUSTER"
+          value: ${CLUSTER}
 kind: List
 metadata: []" | oc create -n $GUID-jenkins -f -
 

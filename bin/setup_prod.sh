@@ -12,6 +12,7 @@ echo "Setting up Tasks Production Environment in project ${GUID}-tasks-prod"
 # Set up Production Project
 oc policy add-role-to-group system:image-puller system:serviceaccounts:${GUID}-tasks-prod -n ${GUID}-tasks-dev
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-tasks-prod
+oc create secret docker-registry nexus-registry-secret -n ${prodProject} --docker-email=rick.stewart@dlt.com --docker-server=nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com --docker-username=admin --docker-password=redhat
 
 # Create Blue Application
 oc new-app ${GUID}-tasks-dev/tasks:0.0 --name=tasks-blue --allow-missing-imagestream-tags=true -n ${GUID}-tasks-prod
@@ -24,6 +25,8 @@ oc set probe dc/tasks-blue --readiness --get-url=http://:8080/ --initial-delay-s
 oc set probe dc/tasks-blue --liveness --get-url=http://:8080/ --initial-delay-seconds=30 --timeout-seconds=1 -n ${GUID}-tasks-prod
 # Setting 'wrong' VERSION. This will need to be updated in the pipeline
 oc set env dc/tasks-blue VERSION='0.0 (tsks-blue)' -n ${GUID}-tasks-prod
+oc patch dc tasks-blue -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"nexus-registry-secret"}]}}}}'
+
 
 
 # Create Green Application
@@ -37,6 +40,7 @@ oc set probe dc/tasks-green --readiness --get-url=http://:8080/ --initial-delay-
 oc set probe dc/tasks-green --liveness --get-url=http://:8080/ --initial-delay-seconds=30 --timeout-seconds=1 -n ${GUID}-tasks-prod
 # Setting 'wrong' VERSION. This will need to be updated in the pipeline
 oc set env dc/tasks-green VERSION='0.0 (tsks-green)' -n ${GUID}-tasks-prod
+oc patch dc tasks-green -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"nexus-registry-secret"}]}}}}'
 
 # Expose Blue service as route to make green application active
 oc expose svc/tasks-green --name tasks -n ${GUID}-tasks-prod

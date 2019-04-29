@@ -226,8 +226,7 @@ podTemplate(
                  sh "oc create secret docker-registry nexus-registry-secret-${GUID} - n ${prodProject} \
                    --docker-server=${nexusRegPub} \
                    --docker-username=admin \
-                   --docker-password=redhat \
-     //              --docker-email=rick.stewart@dlt.com \                   
+                   --docker-password=redhat \               
                    --token=\$(oc whoami -t)"
               }
               

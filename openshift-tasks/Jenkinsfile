@@ -219,27 +219,17 @@ podTemplate(
                 destApp = "tasks-blue"
               }
               
-              //Check for Nexus Reg Secret, if it doesn't exist, create it
-              if (! openshift.selector("secret/nexus-registry-secret").exists()) {
-                 echo "No Nexus Registry Secret - Creating nexus-registry-secret now!"
-                 
-                 sh "oc create secret docker-registry nexus-registry-secret -n ${prodProject} --docker-email=${dockerEmail} --docker-server=${nexusRegPub} --docker-username=admin --docker-password=redhat --token=\$(oc whoami -t)"
-              }
-              
               echo "Active Application:      " + activeApp
               echo "Destination Application: " + destApp
 
               // Update the Image on the Production Deployment Config
               def dc = openshift.selector("dc/${destApp}").object()
               
-              dc.spec.template.spec.imagePullSecrets[0].name="nexus-registry-secret"
-
-              //openshift.set("image", "dc/${destApp}", "${destApp}=${nexusRegPub}/tasks:${prodTag}")
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               
               //Set VERSION environment variable
-              //dc.spec.template.spec.containers[0].env[0].value="${prodTag} (${destApp})"
-              openshift.set("env", "dc/${destApp}", "VERSION=\"${prodTag} (${destApp})\"")
+              dc.spec.template.spec.containers[0].env[0].value="${prodTag} (${destApp})"
+    //          openshift.set("env", "dc/${destApp}", "VERSION=\"${prodTag} (${destApp})\"")
               
               openshift.apply(dc)
 

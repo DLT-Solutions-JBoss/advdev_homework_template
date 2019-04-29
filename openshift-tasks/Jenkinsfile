@@ -220,12 +220,12 @@ podTemplate(
                 color   = "blue"
               }
               
-              //Check for Nexus Reg Secret, if it doesn't exist, create it
-              if (! openshift.selector("secret/nexus-registry-secret-${GUID}").exists()) {
-                 echo "No Nexus Registry Secret - Creating nexus-registry-secret-${GUID} now!"
-                 
-                 sh "oc create secret docker-registry nexus-registry-secret-${GUID} -n ${prodProject} --docker-email=${dockerEmail} --docker-server=${nexusRegPub} --docker-username=admin --docker-password=redhat --token=\$(oc whoami -t)"
-              }
+//              //Check for Nexus Reg Secret, if it doesn't exist, create it
+//              if (! openshift.selector("secret/nexus-registry-secret-${GUID}").exists()) {
+//                 echo "No Nexus Registry Secret - Creating nexus-registry-secret-${GUID} now!"
+//                 
+//                 sh "oc create secret docker-registry nexus-registry-secret-${GUID} -n ${prodProject} --docker-email=${dockerEmail} --docker-server=${nexusRegPub} --docker-username=admin --docker-password=redhat --token=\$(oc whoami -t)"
+//              }
               
               echo "Active Application:      " + activeApp
               echo "Destination Application: " + destApp
@@ -233,7 +233,7 @@ podTemplate(
               // Update the Image on the Production Deployment Config
               def dc = openshift.selector("dc/${destApp}").object()
               
-              dc.spec.template.spec.imagePullSecrets[0].name="nexus-registry-secret-${GUID}"
+ //             dc.spec.template.spec.imagePullSecrets[0].name="nexus-registry-secret-${GUID}"
 
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               

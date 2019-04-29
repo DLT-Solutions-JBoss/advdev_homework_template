@@ -227,7 +227,7 @@ podTemplate(
                    --docker-server=${nexusRegPub} \
                    --docker-username=admin \
                    --docker-password=redhat \
-                   --docker-email='rick.stewart@dlt.com' \                   
+                   --docker-email=rick.stewart@dlt.com \                   
                    --token=\$(oc whoami -t)"
               }
               

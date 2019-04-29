@@ -117,7 +117,7 @@ podTemplate(
             openshift.withCluster() {
               openshift.withProject("${devProject}") {
                 openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
-                openshift.set("env", "dc/tasks", "VERSION=${version}")
+                openshift.set("env", "dc/tasks", "VERSION='${devTag} (tasks-dev)'")
 
                 openshift.selector('configmap', 'tasks-config').delete()
                 def configmap = openshift.create('configmap', 'tasks-config', '--from-file=./configuration/application-users.properties', '--from-file=./configuration/application-roles.properties' )
@@ -238,7 +238,7 @@ podTemplate(
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               
               //Set VERSION environment variable
-              dc.spec.template.spec.containers[0].env[0].value="${version} (tsks-${color})"
+              dc.spec.template.spec.containers[0].env[0].value="${prodTag} (tasks-${color})"
               
               openshift.apply(dc)
 

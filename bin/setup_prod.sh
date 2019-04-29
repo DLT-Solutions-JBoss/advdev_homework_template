@@ -12,7 +12,7 @@ echo "Setting up Tasks Production Environment in project ${GUID}-tasks-prod"
 # Set up Production Project
 oc policy add-role-to-group system:image-puller system:serviceaccounts:${GUID}-tasks-prod -n ${GUID}-tasks-dev
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-tasks-prod
-oc create secret docker-registry nexus-registry-secret -n ${prodProject} --docker-email=rick.stewart@dlt.com --docker-server=nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com --docker-username=admin --docker-password=redhat
+oc create secret docker-registry nexus-registry-secret -n ${prodProject} --docker-email="rick.stewart@dlt.com" --docker-server="nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com" --docker-username=admin --docker-password=redhat
 
 # Create Blue Application
 oc new-app ${GUID}-tasks-dev/tasks:0.0 --name=tasks-blue --allow-missing-imagestream-tags=true -n ${GUID}-tasks-prod

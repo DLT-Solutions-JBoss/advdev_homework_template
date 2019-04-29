@@ -223,13 +223,12 @@ podTemplate(
               if (! openshift.selector("secret/nexus-registry-secret-${GUID}").exists()) {
                  echo "No Nexus Registry Secret - Creating nexus-registry-secret-${GUID} now!"
                  
-                 sh "oc create secret docker-registry nexus-registry-secret-${GUID} \
+                 sh "oc create secret docker-registry nexus-registry-secret-${GUID} - n ${prodProject} \
                    --docker-server=${nexusRegPub} \
                    --docker-username=admin \
                    --docker-password=redhat \
-                   --docker-email='rick.stewart@dlt.com' \
-                   - n '${prodProject}' \
-                   --token='$(oc whoami -t)'"
+                   --docker-email='rick.stewart@dlt.com' \                   
+                   --token=\$(oc whoami -t)"
               }
               
               echo "Active Application:      " + activeApp

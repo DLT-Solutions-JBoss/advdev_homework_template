@@ -227,9 +227,9 @@ podTemplate(
                    --docker-server=${nexusRegPub} \
                    --docker-username=admin \
                    --docker-password=redhat \
-                   --docker-email=rick.stewart@dlt.com \
-                   - n ${prodProject} \
-                   --token=$(oc whoami -t)"
+                   --docker-email='rick.stewart@dlt.com' \
+                   - n '${prodProject}' \
+                   --token='$(oc whoami -t)'"
               }
               
               echo "Active Application:      " + activeApp

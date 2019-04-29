@@ -13,15 +13,11 @@ CLUSTER=$3
 echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cluster ${CLUSTER}"
 
 # Set up Jenkins with sufficient resources
-oc new-app jenkins-persistent \
+oc new-app jenkins-persistent -n $GUID-jenkins \
   -p ENABLE_OAUTH=true \
   -p MEMORY_LIMIT=4Gi \
   -p VOLUME_CAPACITY=10Gi \
-  -p DISABLE_ADMINISTRATIVE_MONITORS=true \
-  -env JENKINS_JAVA_OVERRIDES="-Dhudson.slaves.NodeProvisioner.initialDelay=0 -Dhudson.slaves.NodeProvisioner.MARGIN=50 \
-  -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85 \
-  -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL=300" \ 
-  -n $GUID-jenkins
+  -p DISABLE_ADMINISTRATIVE_MONITORS=true
 
 # 
 oc set resources dc/jenkins --limits=memory=4Gi,cpu=4 --requests=memory=2Gi,cpu=2 -n $GUID-jenkins

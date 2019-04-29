@@ -234,7 +234,8 @@ podTemplate(
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               
               //Set VERSION environment variable
-              openshift.set("env", "dc/${destApp}", "VERSION=${version} (tsks-${color})")
+     //       openshift.set("env", "dc/${destApp}", "VERSION=${version} (tsks-${color})")
+              dc.spec.template.spec.containers[0].env[0].value="{version} (tsks-${color})"
               
               openshift.apply(dc)
 

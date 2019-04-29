@@ -24,7 +24,7 @@ oc new-app jenkins-persistent  \
 
 # Create custom agent container image with skopeo
 oc new-build -D $'FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11 USER root RUN yum -y install skopeo && yum clean all USER 1001' \ 
- ---name jenkins-agent-appdev \
+ --name jenkins-agent-appdev \
  --namespace $GUID-jenkins
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`

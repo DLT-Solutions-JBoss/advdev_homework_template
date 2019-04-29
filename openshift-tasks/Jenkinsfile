@@ -227,7 +227,9 @@ podTemplate(
                    --docker-server=${nexusRegPub} \
                    --docker-username=admin \
                    --docker-password=redhat \
-                   --docker-email=rick.stewart@dlt.com"
+                   --docker-email=rick.stewart@dlt.com \
+                   - n ${prodProject} \
+                   --token=$(oc whoami -t)"
               }
               
               echo "Active Application:      " + activeApp
@@ -236,7 +238,7 @@ podTemplate(
               // Update the Image on the Production Deployment Config
               def dc = openshift.selector("dc/${destApp}").object()
               
-              dc.spec.template.spec.imagePullSecrets.name="nexus-registry-secret-${GUID}"
+              dc.spec.template.spec.imagePullSecrets[0].name="nexus-registry-secret-${GUID}"
 
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               

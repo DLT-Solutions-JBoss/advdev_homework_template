@@ -1,6 +1,6 @@
 #!groovy
 podTemplate(
-  label: "jenkins-agent-appdev",
+  label: "homework",
   cloud: "openshift",
   inheritFrom: "maven",
   containers: [
@@ -14,7 +14,7 @@ podTemplate(
     )
   ]
 ) {
-  node('jenkins-agent-appdev') {
+  node('homework') {
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
     def mvnCmd       = "mvn -s ../nexus_settings.xml"
@@ -42,7 +42,7 @@ podTemplate(
       def version = getVersionFromPom("pom.xml")
 
       // Set the tag for the development image: version + build number
-      def devTag  = "${version}-" + currentBuild.number
+      def devTag  = "${version}-${currentBuild.number}"
       // Set the tag for the production image: version
       def prodTag = "${version}"
 
@@ -202,7 +202,6 @@ podTemplate(
       // Blue/Green Deployment into Production
       // -------------------------------------
       def destApp   = "tasks-green"
-      def color     = "green"
       def activeApp = ""
 
       stage('Blue/Green Production Deployment') {
@@ -217,7 +216,6 @@ podTemplate(
               activeApp = openshift.selector("route", "tasks").object().spec.to.name
               if (activeApp == "tasks-green") {
                 destApp = "tasks-blue"
-                color   = "blue"
               }
               
               //Check for Nexus Reg Secret, if it doesn't exist, create it
@@ -235,10 +233,12 @@ podTemplate(
               
               dc.spec.template.spec.imagePullSecrets[0].name="nexus-registry-secret"
 
+              //openshift.set("image", "dc/${destApp}", "${destApp}=${nexusRegPub}/tasks:${prodTag}")
               dc.spec.template.spec.containers[0].image="${nexusRegPub}/tasks:${prodTag}"
               
               //Set VERSION environment variable
-              dc.spec.template.spec.containers[0].env[0].value="${prodTag} (tasks-${color})"
+              //dc.spec.template.spec.containers[0].env[0].value="${prodTag} (${destApp})"
+              openshift.set("env", "dc/${destApp}", "VERSION=\"${prodTag} (${destApp})\"")
               
               openshift.apply(dc)
 

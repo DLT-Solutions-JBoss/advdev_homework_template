@@ -1,6 +1,6 @@
 #!groovy
 podTemplate(
-  label: "homework",
+  label: "skopeo-pod",
   cloud: "openshift",
   inheritFrom: "maven",
   containers: [
@@ -14,19 +14,10 @@ podTemplate(
     )
   ]
 ) {
-  node('homework') {
+  node('skopeo-pod') {
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
     def mvnCmd       = "mvn -s ../nexus_settings.xml"
-    def nexusRepo    = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
-    def nexusRegSvc  = "nexus-registry.gpte-hw-cicd.svc.cluster.local:5000"
-    def nexusRegPub  = "nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
-    def sonarqube    = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
-    def sonarqubeSvc = "sonarqube.gpte-hw-cicd.svc.cluster.local:9000"
-    def appBaseUrl   = "apps.na311.openshift.opentlc.com"
-    def devProject   = "${GUID}" +"-tasks-dev"
-    def prodProject  = "${GUID}" +"-tasks-prod"
-    def dockerEmail  = "rick.stewart@dlt.com"
 
     // Checkout Source Code.
     stage('Checkout Source') {
@@ -45,6 +36,16 @@ podTemplate(
       def devTag  = "${version}-${currentBuild.number}"
       // Set the tag for the production image: version
       def prodTag = "${version}"
+      
+      def nexusRepo    = "http://nexus3-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+      def nexusRegSvc  = "nexus-registry.gpte-hw-cicd.svc.cluster.local:5000"
+      def nexusRegPub  = "nexus-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+      def sonarqube    = "http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com"
+      def sonarqubeSvc = "sonarqube.gpte-hw-cicd.svc.cluster.local:9000"
+      def appBaseUrl   = "apps.na311.openshift.opentlc.com"
+      def devProject   = "${GUID}" +"-tasks-dev"
+      def prodProject  = "${GUID}" +"-tasks-prod"
+      def dockerEmail  = "rick.stewart@dlt.com"
 
       // Using Maven build the war file
       // Do not run tests in this step
